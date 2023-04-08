@@ -8,7 +8,6 @@ import avro.io
 from kafka import KafkaProducer
 
 # https://finnhub.io/docs/api/websocket-trades
-# this is a simple example of a websocket client that subscribes to the MSFT (Microsoft) stock
 class FinnhubProducer:
     def __init__(self):
         """
@@ -19,7 +18,6 @@ class FinnhubProducer:
         # define config from config file
         self.config = self.load_config('config.json')
 
-        print(self.config)
         # define the kafka producer here. This assumes there is a kafka server already setup at the address and port
         self.producer = KafkaProducer(bootstrap_servers=f"{self.config['KAFKA_SERVER']}:{self.config['KAFKA_PORT']}",api_version=(0, 10, 1))
         
