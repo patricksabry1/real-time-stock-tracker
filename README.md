@@ -14,7 +14,6 @@ I will delve into the rationale behind the technologies used, going through the 
 
 
 # Solution Architecture
-TODO - add solution architecture diagram
 ![Solution Architecture](docs/arch_diagram.png)
 
 
@@ -41,6 +40,8 @@ We'll start off by writing a long-running python service that subscribes to the 
 ## Test Consumer
 This is something I added for testing purposes to validate that the Kafka cluster was setup properly and the producer app was successfully pulling data from the web socket and submitting them to the kafka topic. This definitely helped debugging formatting issues with AVRO conversions prior to writing up the spark processor app.
 
+Here is an example console output of the test consumer app that was reading from Kafka, AVRO decoding, and printing the payload to console:
+![consumer example](docs/consumer-test.png)
 
 ## Cassandra DB
 The data store of choice for this project is Cassandra DB. Cassandra is known to be quite resilient and scalable. Cassandra is optimized for time-series data, and if we can leverage time-based UUIDs properly we can greatly improve performance at scale. 
@@ -49,6 +50,7 @@ Our Cassandra instance has a single keyspace called `market`, within which are t
 * Atomic fact table: `trades` - stores the individual ticker data points
 * Aggregated view table: `running_averages_15_sec` - Running average of price x volume in rolling 15 second window.
 
+![ERD](docs/erd.png)
 
 ## Spark Processor (Consumer)
 We will be using a standalone Spark cluster (Docker) with one master node and two worker nodes to process the kafka messages and write our cleaned data to Cassandra. The `StreamProcessor` docker image is used to submit a `Pyspark` application to the Spark cluster via `spark-submit` command, and most impoortantly injects the `kafka` and `cassandra` connector dependencies to ensure the Spark cluster can connect the kafka broker as well as the cassandra DB we setup. It is important to ensure matching dependency versions based on Python and Spark versions used in the spark cluster and the driver otherwise you will run into obscure Spark errors. Note the dependency format `<groupId>`:`<artifactId>`:`<version>` in the `spark-submit` example below which is the final CMD ran for the `StreamProcessor` Docker image:  
